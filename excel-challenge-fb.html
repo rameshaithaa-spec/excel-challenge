@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Excel Challenge – Play & Learn Excel Functions</title>
+
+    <!-- Open Graph for nice Facebook preview -->
+    <meta property="og:title" content="Excel Challenge – Can you beat 60 seconds?">
+    <meta property="og:description" content="Test your Excel knowledge! 3 levels (Basic / Expert / Pro), 55 questions, timer, streaks & high scores. Play instantly – no install needed.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4ca.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="description" content="Free Excel quiz game with 55 questions across Basic, Expert and Pro levels. Beat the 60-second timer and climb the leaderboard!">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: #f0f2f5;
+            padding: 12px;
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .container {
+            max-width: 640px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            gap: 12px;
+        }
+        .title-section { display: flex; align-items: center; gap: 10px; }
+        .title-icon { font-size: 28px; }
+        .title-text h1 { font-size: 24px; font-weight: 700; color: #1a1a1a; margin: 0; }
+        .title-text p { font-size: 13px; color: #65676b; margin: 2px 0 0; }
+        .level-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+        .level-badge.basic { background: #e8f5e9; color: #2e7d32; }
+        .level-badge.expert { background: #fff3e0; color: #e65100; }
+        .level-badge.pro { background: #e3f2fd; color: #1565c0; }
+
+        .restart-btn, .share-btn {
+            padding: 8px 16px;
+            border: 2px solid #1877f2;
+            background: #fff;
+            color: #1877f2;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .restart-btn:hover, .share-btn:hover { background: #e7f3ff; }
+        .share-btn { background: #1877f2; color: #fff; border-color: #1877f2; }
+        .share-btn:hover { background: #166fe5; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .stat-box {
+            border: 1px solid #e4e6eb;
+            border-radius: 10px;
+            padding: 14px 8px;
+            text-align: center;
+            background: #fafafa;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #65676b;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            margin-bottom: 4px;
+        }
+        .stat-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .description {
+            font-size: 14px;
+            color: #65676b;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .question-box {
+            background: #f0f2f5;
+            border-radius: 12px;
+            padding: 24px 16px;
+            margin-bottom: 16px;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .question-text {
+            font-size: 18px;
+            color: #1a1a1a;
+            line-height: 1.45;
+            font-weight: 600;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .option-btn {
+            padding: 16px 12px;
+            border: 2px solid #e4e6eb;
+            background: #fff;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #1a1a1a;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: center;
+            min-height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: break-word;
+        }
+        .option-btn:hover:not(:disabled) {
+            border-color: #1877f2;
+            background: #e7f3ff;
+        }
+        .option-btn:active:not(:disabled) { transform: scale(0.97); }
+        .option-btn:disabled { cursor: default; }
+        .option-btn.correct {
+            border-color: #31a24c;
+            background: #e7f6ec;
+            color: #31a24c;
+        }
+        .option-btn.wrong {
+            border-color: #e41e3f;
+            background: #fde8eb;
+            color: #e41e3f;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid #e4e6eb;
+            font-size: 14px;
+            color: #65676b;
+        }
+        .streak-number, .best-number { font-weight: 700; color: #1a1a1a; }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        .level-selection { text-align: center; }
+        .level-selection h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+        .level-selection .subtitle {
+            font-size: 14px;
+            color: #65676b;
+            margin-bottom: 24px;
+        }
+        .level-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .level-btn {
+            padding: 20px 16px;
+            border: 2px solid #e4e6eb;
+            background: #fff;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .level-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+        }
+        .level-btn.basic { border-color: #31a24c; }
+        .level-btn.expert { border-color: #f7b928; }
+        .level-btn.pro { border-color: #1877f2; }
+        .level-btn .emoji { font-size: 28px; }
+        .level-btn .info { flex: 1; }
+        .level-btn .info small {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #65676b;
+            margin-top: 2px;
+        }
+
+        .game-over-screen { text-align: center; }
+        .game-over-message {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin: 12px 0 20px;
+        }
+        .final-stats {
+            background: #f0f2f5;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+        .final-stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e4e6eb;
+            font-size: 15px;
+        }
+        .final-stat-row:last-child { border-bottom: none; }
+        .final-stat-label { color: #65676b; }
+        .final-stat-value { font-weight: 700; color: #1a1a1a; }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .btn {
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        .btn-primary { background: #1877f2; color: #fff; }
+        .btn-primary:hover { background: #166fe5; }
+        .btn-secondary {
+            background: #fff;
+            border: 2px solid #1877f2;
+            color: #1877f2;
+        }
+        .btn-secondary:hover { background: #e7f3ff; }
+        .btn-share {
+            background: #42b72a;
+            color: #fff;
+        }
+        .btn-share:hover { background: #36a420; }
+
+        .progress-bar {
+            height: 6px;
+            background: #e4e6eb;
+            border-radius: 3px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #1877f2;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .fb-note {
+            margin-top: 24px;
+            padding: 14px;
+            background: #e7f3ff;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #1877f2;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        @media (min-width: 480px) {
+            .level-buttons { grid-template-columns: 1fr 1fr 1fr; }
+            .level-btn { flex-direction: column; text-align: center; padding: 24px 12px; }
+            .action-buttons { flex-direction: row; }
+            .btn { width: auto; flex: 1; }
+        }
+        @media (max-width: 400px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .options-grid { grid-template-columns: 1fr; }
+            .question-text { font-size: 16px; }
+            .stat-value { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- LEVEL SELECTION -->
+        <div class="screen active" id="levelScreen">
+            <div class="header">
+                <div class="title-section">
+                    <div class="title-icon">📊</div>
+                    <div class="title-text">
+                        <h1>Excel Challenge</h1>
+                        <p>Test your Excel skills in 60 seconds</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="level-selection">
+                <h2>Choose Difficulty</h2>
+                <p class="subtitle">55 questions • Instant feedback • High-score tracking</p>
+
+                <div class="level-buttons">
+                    <button class="level-btn basic" onclick="startLevel('basic')">
+                        <span class="emoji">🌱</span>
+                        <div class="info">
+                            BASIC
+                            <small>15 questions • +10 pts</small>
+                        </div>
+                    </button>
+                    <button class="level-btn expert" onclick="startLevel('expert')">
+                        <span class="emoji">⚡</span>
+                        <div class="info">
+                            EXPERT
+                            <small>20 questions • +15 pts</small>
+                        </div>
+                    </button>
+                    <button class="level-btn pro" onclick="startLevel('pro')">
+                        <span class="emoji">🚀</span>
+                        <div class="info">
+                            PRO
+                            <small>20 questions • +20 pts</small>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="fb-note">
+                    💡 Share this page on Facebook → friends can play instantly in their browser.
+                    No app install required.
+                </div>
+            </div>
+        </div>
+
+        <!-- GAME SCREEN -->
+        <div class="screen" id="gameScreen">
+            <div class="header">
+                <div class="title-section">
+                    <div class="title-icon">📊</div>
+                    <div class="title-text">
+                        <h1>Excel Challenge</h1>
+                        <p>Answer fast!</p>
+                        <div class="level-badge" id="levelBadge"></div>
+                    </div>
+                </div>
+                <button class="restart-btn" onclick="goToLevelSelection()">Back</button>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width:0%"></div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-label">Level</div>
+                    <div class="stat-value" id="level">1</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Score</div>
+                    <div class="stat-value" id="score">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Time</div>
+                    <div class="stat-value" id="timer">60</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Progress</div>
+                    <div class="stat-value" id="progress">1/15</div>
+                </div>
+            </div>
+
+            <p class="description">Tap the correct answer as fast as you can!</p>
+
+            <div class="question-box">
+                <div class="question-text" id="question">Loading…</div>
+            </div>
+
+            <div class="options-grid" id="optionsContainer"></div>
+
+            <div class="footer">
+                <div>🔥 Streak: <span class="streak-number" id="streak">0</span></div>
+                <div>Best: <span class="best-number" id="best">0</span></div>
+            </div>
+        </div>
+
+        <!-- GAME OVER -->
+        <div class="screen" id="gameOverScreen">
+            <div class="header">
+                <div class="title-section">
+                    <div class="title-icon">📊</div>
+                    <div class="title-text">
+                        <h1>Excel Challenge</h1>
+                        <div class="level-badge" id="levelBadgeEnd"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-over-message">GAME OVER</div>
+
+            <div class="final-stats">
+                <div class="final-stat-row">
+                    <span class="final-stat-label">Final Score</span>
+                    <span class="final-stat-value" id="finalScore">0</span>
+                </div>
+                <div class="final-stat-row">
+                    <span class="final-stat-label">Difficulty</span>
+                    <span class="final-stat-value" id="finalDifficulty">BASIC</span>
+                </div>
+                <div class="final-stat-row">
+                    <span class="final-stat-label">Questions Answered</span>
+                    <span class="final-stat-value" id="finalAnswered">0</span>
+                </div>
+                <div class="final-stat-row">
+                    <span class="final-stat-label">Correct Answers</span>
+                    <span class="final-stat-value" id="finalCorrect">0</span>
+                </div>
+                <div class="final-stat-row">
+                    <span class="final-stat-label">Accuracy</span>
+                    <span class="final-stat-value" id="finalAccuracy">0%</span>
+                </div>
+                <div class="final-stat-row">
+                    <span class="final-stat-label">Best Streak</span>
+                    <span class="final-stat-value" id="finalStreak">0</span>
+                </div>
+                <div class="final-stat-row">
+                    <span class="final-stat-label">All-time Best</span>
+                    <span class="final-stat-value" id="finalBest">0</span>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-share" onclick="shareOnFacebook()">📢 Share on Facebook</button>
+                <button class="btn btn-primary" onclick="restartLevel()">↻ Play Again</button>
+                <button class="btn btn-secondary" onclick="goToLevelSelection()">← Choose Another Level</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+// ============================================================
+// EXCEL CHALLENGE – FIXED & FACEBOOK-READY SINGLE FILE
+// ============================================================
+
+const questionDatabase = {
+    basic: [
+        { q: "Which function returns the largest value?", opts: ["MAX", "MIN", "LARGE", "HIGH"], ans: 0 },
+        { q: "What does the SUM function do?", opts: ["Adds numbers", "Counts cells", "Finds average", "Gets maximum"], ans: 0 },
+        { q: "Which function returns the smallest value?", opts: ["MIN", "LOW", "SMALL", "LEAST"], ans: 0 },
+        { q: "AVERAGE function calculates what?", opts: ["Sum", "Mean value", "Median", "Range"], ans: 1 },
+        { q: "What does COUNT function do?", opts: ["Sums numbers", "Counts cells with numbers", "Counts text", "Counts empty cells"], ans: 1 },
+        { q: "Which feature summarizes data interactively?", opts: ["WordArt", "Comments", "PivotTable", "Themes"], ans: 2 },
+        { q: "Ctrl+S saves a file. What about Ctrl+Z?", opts: ["Copy", "Paste", "Undo", "Cut"], ans: 2 },
+        { q: "Which is NOT a chart type in Excel?", opts: ["Pie", "Line", "Scatter", "Triangle"], ans: 3 },
+        { q: "What does conditional formatting do?", opts: ["Formats cells based on values", "Adds comments", "Creates charts", "Protects sheet"], ans: 0 },
+        { q: "IF function is used for what?", opts: ["Finding values", "Creating conditions", "Counting cells", "Summing data"], ans: 1 },
+        { q: "What freezes rows while scrolling?", opts: ["Lock cells", "Freeze Panes", "Protect Sheet", "Hide rows"], ans: 1 },
+        { q: "CONCATENATE joins what together?", opts: ["Numbers", "Text strings", "Rows", "Columns"], ans: 1 },
+        { q: "What does LEN function return?", opts: ["Length of text", "Number value", "Cell range", "Data type"], ans: 0 },
+        { q: "ROUND function rounds to what?", opts: ["Nearest integer", "Specified decimal places", "Nearest ten", "Percentage"], ans: 1 },
+        { q: "Which function finds a value in a table?", opts: ["SEARCH", "FIND", "VLOOKUP", "INDEX"], ans: 2 }
+    ],
+    expert: [
+        { q: "VLOOKUP searches data in which direction?", opts: ["Up", "Down (vertically)", "Left", "Right only"], ans: 1 },
+        { q: "What does IFERROR function do?", opts: ["Finds errors", "Returns alternative value if error", "Prevents errors", "Shows error messages"], ans: 1 },
+        { q: "INDEX and MATCH work together for what?", opts: ["Horizontal lookup only", "Vertical lookup only", "Flexible advanced lookup", "Error checking"], ans: 2 },
+        { q: "SUMIF adds numbers based on what?", opts: ["Color", "Criteria", "Range size", "Data type"], ans: 1 },
+        { q: "What does COUNTIFS function do?", opts: ["Counts with one criteria", "Counts with multiple criteria", "Counts text", "Counts formulas"], ans: 1 },
+        { q: "OFFSET function returns what?", opts: ["A fixed cell", "A range offset from a starting point", "Text offset", "Number offset"], ans: 1 },
+        { q: "What does INDIRECT function do?", opts: ["Creates references", "Creates a reference from text", "Removes references", "Finds references"], ans: 1 },
+        { q: "AGGREGATE function can ignore what?", opts: ["Text", "Numbers", "Errors and hidden rows", "Formulas"], ans: 2 },
+        { q: "What is the purpose of TRANSPOSE?", opts: ["Flips rows and columns", "Sorts data", "Converts to text", "Changes format"], ans: 0 },
+        { q: "SUMPRODUCT multiplies arrays then does what?", opts: ["Divides", "Adds the results", "Subtracts", "Averages"], ans: 1 },
+        { q: "What does RANK function determine?", opts: ["Sorts data", "Position of a number in a list", "Highest value", "Data type"], ans: 1 },
+        { q: "NETWORKDAYS calculates what?", opts: ["Weekdays between two dates", "Total days", "Work hours", "Business quarters"], ans: 0 },
+        { q: "What does EDATE function return?", opts: ["Current date", "Date plus/minus months", "Difference in dates", "Day of week"], ans: 1 },
+        { q: "TEXT function formats what?", opts: ["Sheets", "A value as text with a format", "Text to numbers", "Comments"], ans: 1 },
+        { q: "SUBSTITUTE replaces what?", opts: ["Rows", "Columns", "Specific text in a string", "Cell references"], ans: 2 },
+        { q: "In modern Excel, REGEX functions match what?", opts: ["Entire cell only", "A pattern", "Number format", "Text length"], ans: 1 },
+        { q: "FILTER function returns what?", opts: ["Sorted data", "Data matching criteria", "Unique values only", "Formatted data"], ans: 1 },
+        { q: "UNIQUE function removes what?", opts: ["Blanks", "Duplicates", "Formulas", "Formatting"], ans: 1 },
+        { q: "SORT arranges data by what?", opts: ["Alphabetically only", "One or more specified criteria", "Ascending only", "Color"], ans: 1 },
+        { q: "What is a key advantage of XLOOKUP over VLOOKUP?", opts: ["Only searches left", "Can search in any direction & return any column", "Faster only", "Better accuracy only"], ans: 1 }
+    ],
+    pro: [
+        { q: "What is an array formula in Excel?", opts: ["Formula using arrays", "A formula that can return multiple results", "Single formula multi results", "Dynamic range only"], ans: 1 },
+        { q: "Ctrl+Shift+Enter traditionally created what?", opts: ["Conditional formula", "Array formula", "Named range", "Macro"], ans: 1 },
+        { q: "What does MMULT function do?", opts: ["Multiplies numbers", "Performs matrix multiplication", "Multiplies ranges only", "Multi-level calc"], ans: 1 },
+        { q: "LINEST function is used for what?", opts: ["Line charts", "Linear regression statistics", "Linear layout", "Line spacing"], ans: 1 },
+        { q: "What is a volatile function?", opts: ["Changes data", "Recalculates every time Excel recalculates", "Unstable", "Manual update only"], ans: 1 },
+        { q: "Which of these is NOT a volatile function?", opts: ["NOW", "TODAY", "RAND", "VLOOKUP"], ans: 3 },
+        { q: "What does LOGEST function analyze?", opts: ["Text length", "Exponential/logarithmic growth", "List data", "Logic operators"], ans: 1 },
+        { q: "FORECAST.LINEAR predicts what?", opts: ["Dates", "Future values based on linear trend", "Line breaks", "Forecast range"], ans: 1 },
+        { q: "What is a circular reference?", opts: ["Round cell reference", "A formula that refers to its own cell (directly or indirectly)", "Circular data", "Circular range"], ans: 1 },
+        { q: "LAMBDA function creates what?", opts: ["Lists", "Custom reusable functions", "Lambdas only", "Named ranges"], ans: 1 },
+        { q: "What does LET function do?", opts: ["Assigns text", "Assigns names to calculation results (variables)", "Lets cells", "Defines text"], ans: 1 },
+        { q: "BYROW applies a function to what?", opts: ["Columns", "Each row of an array", "Entire range only", "Single cell"], ans: 1 },
+        { q: "BYCOL applies a function to what?", opts: ["Rows", "Each column of an array", "Entire range only", "Single row"], ans: 1 },
+        { q: "SEQUENCE generates what?", opts: ["Sequences only", "An array of sequential numbers", "Sequenced data", "Sorted list"], ans: 1 },
+        { q: "What is the purpose of REDUCE?", opts: ["Reduces size", "Accumulates a value across an array", "Reduces complexity", "Removes duplicates"], ans: 1 },
+        { q: "What does SCAN function do?", opts: ["Reads data", "Applies a function and returns intermediate accumulated results", "Searches data", "Scans cells"], ans: 1 },
+        { q: "What is recursive calculation?", opts: ["Repeated calculation", "A formula or LAMBDA that calls itself", "Cyclic calculation only", "Recursive data"], ans: 1 },
+        { q: "What does Power Query primarily do?", opts: ["Adds power", "Extract, transform and load (ETL) data", "More queries", "Faster queries only"], ans: 1 },
+        { q: "What is a data model in Excel?", opts: ["Model of data", "A collection of tables with relationships", "Data format", "Data template"], ans: 1 },
+        { q: "DAX is primarily used for what in Excel?", opts: ["Data manipulation only", "Creating measures and calculations in data models / PivotTables", "Dynamic arrays", "Data index"], ans: 1 }
+    ]
+};
+
+// ============================================================
+// GAME STATE
+// ============================================================
+let gameState = {
+    currentLevel: null,
+    score: 0,
+    timeRemaining: 60,
+    maxTime: 60,
+    streak: 0,
+    bestStreak: parseInt(localStorage.getItem('excelBestStreak') || '0', 10),
+    bestScore: parseInt(localStorage.getItem('excelBestScore') || '0', 10),
+    gameActive: false,
+    currentQuestion: 0,
+    totalQuestions: 0,
+    correctAnswers: 0,
+    questions: [],
+    timerId: null          // FIXED: store interval ID so we can clear it
+};
+
+// ============================================================
+// CORE GAME FUNCTIONS
+// ============================================================
+
+function startLevel(levelName) {
+    // Clear any existing timer first
+    clearTimer();
+
+    gameState.currentLevel = levelName;
+    // Proper Fisher-Yates style shuffle
+    gameState.questions = shuffleArray([...questionDatabase[levelName]]);
+    gameState.totalQuestions = gameState.questions.length;
+
+    resetGameState();
+    updateBadge();
+    showGameScreen();
+    loadQuestion();
+    startTimer();
+    updateUI();
+}
+
+function resetGameState() {
+    gameState.score = 0;
+    gameState.timeRemaining = 60;
+    gameState.maxTime = 60;
+    gameState.streak = 0;
+    gameState.gameActive = true;
+    gameState.currentQuestion = 0;
+    gameState.correctAnswers = 0;
+}
+
+function loadQuestion() {
+    if (gameState.currentQuestion >= gameState.totalQuestions) {
+        endGame();
+        return;
+    }
+    const q = gameState.questions[gameState.currentQuestion];
+    document.getElementById('question').textContent = q.q;
+
+    const container = document.getElementById('optionsContainer');
+    container.innerHTML = '';
+
+    q.opts.forEach((option, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = option;
+        btn.onclick = () => checkAnswer(index);
+        container.appendChild(btn);
+    });
+}
+
+function checkAnswer(selectedIndex) {
+    if (!gameState.gameActive) return;
+
+    const q = gameState.questions[gameState.currentQuestion];
+    const buttons = document.querySelectorAll('.option-btn');
+
+    // Disable further clicks
+    gameState.gameActive = false;
+    buttons.forEach(b => b.disabled = true);
+
+    if (selectedIndex === q.ans) {
+        // CORRECT
+        const bonus = getScoringBonus(gameState.currentLevel);
+        gameState.score += 10 + bonus;
+        gameState.streak++;
+        gameState.correctAnswers++;
+        if (gameState.streak > gameState.bestStreak) {
+            gameState.bestStreak = gameState.streak;
+            localStorage.setItem('excelBestStreak', gameState.bestStreak);
+        }
+        buttons[selectedIndex].classList.add('correct');
+    } else {
+        // WRONG
+        gameState.streak = 0;
+        buttons[selectedIndex].classList.add('wrong');
+        buttons[q.ans].classList.add('correct');
+    }
+
+    updateUI();
+
+    setTimeout(() => {
+        gameState.currentQuestion++;
+        if (gameState.currentQuestion >= gameState.totalQuestions || gameState.timeRemaining <= 0) {
+            endGame();
+        } else {
+            gameState.gameActive = true;
+            loadQuestion();
+            updateUI();
+        }
+    }, 900);
+}
+
+function startTimer() {
+    clearTimer(); // safety
+    gameState.timerId = setInterval(() => {
+        if (!gameState.gameActive && gameState.timeRemaining > 0) {
+            // still counting while feedback is shown is fine
+        }
+        gameState.timeRemaining--;
+        updateUI();
+
+        if (gameState.timeRemaining <= 0) {
+            clearTimer();
+            endGame();
+        }
+    }, 1000);
+}
+
+function clearTimer() {
+    if (gameState.timerId) {
+        clearInterval(gameState.timerId);
+        gameState.timerId = null;
+    }
+}
+
+function updateUI() {
+    const levelNum = gameState.currentLevel === 'basic' ? 1 :
+                     gameState.currentLevel === 'expert' ? 2 : 3;
+    document.getElementById('level').textContent = levelNum;
+    document.getElementById('score').textContent = gameState.score;
+    document.getElementById('timer').textContent = Math.max(0, gameState.timeRemaining);
+    document.getElementById('streak').textContent = gameState.streak;
+    document.getElementById('best').textContent = gameState.bestScore;
+
+    const answered = Math.min(gameState.currentQuestion + 1, gameState.totalQuestions);
+    document.getElementById('progress').textContent = `${answered}/${gameState.totalQuestions}`;
+
+    const progressPct = (gameState.currentQuestion / gameState.totalQuestions) * 100;
+    document.getElementById('progressFill').style.width = Math.min(100, progressPct) + '%';
+}
+
+function endGame() {
+    if (!gameState.gameActive && gameState.timeRemaining > 0 && gameState.currentQuestion < gameState.totalQuestions) {
+        // already ending from last answer – allow
+    }
+    gameState.gameActive = false;
+    clearTimer();
+
+    // Update all-time best score
+    if (gameState.score > gameState.bestScore) {
+        gameState.bestScore = gameState.score;
+        localStorage.setItem('excelBestScore', gameState.bestScore);
+    }
+
+    // Save stats (was missing before)
+    const answered = Math.min(gameState.currentQuestion, gameState.totalQuestions);
+    const accuracy = answered > 0 ? Math.round((gameState.correctAnswers / answered) * 100) : 0;
+    saveGameStats(gameState.score, gameState.currentLevel, accuracy);
+
+    showGameOverScreen();
+    displayFinalStats();
+}
+
+function displayFinalStats() {
+    // FIXED: use actual questions answered, not always total
+    const answered = Math.min(gameState.currentQuestion, gameState.totalQuestions);
+    const accuracy = answered > 0 ? Math.round((gameState.correctAnswers / answered) * 100) : 0;
+    const levelName = (gameState.currentLevel || 'basic').toUpperCase();
+
+    document.getElementById('finalScore').textContent = gameState.score;
+    document.getElementById('finalDifficulty').textContent = levelName;
+    document.getElementById('finalAnswered').textContent = answered;
+    document.getElementById('finalCorrect').textContent = gameState.correctAnswers;
+    document.getElementById('finalAccuracy').textContent = accuracy + '%';
+    document.getElementById('finalStreak').textContent = gameState.bestStreak;
+    document.getElementById('finalBest').textContent = gameState.bestScore;
+}
+
+// ============================================================
+// UI NAVIGATION
+// ============================================================
+
+function showGameScreen() {
+    document.getElementById('levelScreen').classList.remove('active');
+    document.getElementById('gameScreen').classList.add('active');
+    document.getElementById('gameOverScreen').classList.remove('active');
+}
+
+function showGameOverScreen() {
+    document.getElementById('gameScreen').classList.remove('active');
+    document.getElementById('gameOverScreen').classList.add('active');
+}
+
+function goToLevelSelection() {
+    clearTimer();
+    gameState.gameActive = false;
+    document.getElementById('levelScreen').classList.add('active');
+    document.getElementById('gameScreen').classList.remove('active');
+    document.getElementById('gameOverScreen').classList.remove('active');
+}
+
+function restartLevel() {
+    if (gameState.currentLevel) {
+        startLevel(gameState.currentLevel);
+    } else {
+        goToLevelSelection();
+    }
+}
+
+function updateBadge() {
+    const maps = {
+        basic:  { text: '🌱 BASIC',  cls: 'basic' },
+        expert: { text: '⚡ EXPERT', cls: 'expert' },
+        pro:    { text: '🚀 PRO',    cls: 'pro' }
+    };
+    const m = maps[gameState.currentLevel] || maps.basic;
+
+    const badge = document.getElementById('levelBadge');
+    const badgeEnd = document.getElementById('levelBadgeEnd');
+    badge.textContent = m.text;
+    badge.className = 'level-badge ' + m.cls;
+    badgeEnd.textContent = m.text;
+    badgeEnd.className = 'level-badge ' + m.cls;
+}
+
+// ============================================================
+// UTILITY
+// ============================================================
+
+function getScoringBonus(level) {
+    return { basic: 0, expert: 5, pro: 10 }[level] || 0;
+}
+
+function shuffleArray(array) {
+    // Fisher-Yates
+    const a = [...array];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function saveGameStats(score, level, accuracy) {
+    try {
+        const stats = JSON.parse(localStorage.getItem('excelStats') || '{}');
+        if (!stats[level]) stats[level] = [];
+        stats[level].push({
+            score,
+            accuracy,
+            date: new Date().toISOString()
+        });
+        // keep only last 20 per level
+        if (stats[level].length > 20) stats[level] = stats[level].slice(-20);
+        localStorage.setItem('excelStats', JSON.stringify(stats));
+    } catch (e) { /* ignore quota errors */ }
+}
+
+function clearGameStats() {
+    localStorage.removeItem('excelBestScore');
+    localStorage.removeItem('excelBestStreak');
+    localStorage.removeItem('excelStats');
+    gameState.bestScore = 0;
+    gameState.bestStreak = 0;
+}
+
+// ============================================================
+// FACEBOOK SHARE
+// ============================================================
+
+function shareOnFacebook() {
+    // When hosted, this will share the current page URL
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(
+        `I just scored ${gameState.score} points on Excel Challenge (${(gameState.currentLevel||'').toUpperCase()})! Can you beat me? 📊`
+    );
+    const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`;
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+
+function initializeGame() {
+    gameState.bestScore = parseInt(localStorage.getItem('excelBestScore') || '0', 10);
+    gameState.bestStreak = parseInt(localStorage.getItem('excelBestStreak') || '0', 10);
+}
+
+window.addEventListener('load', initializeGame);
+
+// Debug helpers (still available in console)
+function printGameStats() {
+    console.log('=== EXCEL CHALLENGE STATS ===');
+    console.log(gameState);
+}
+function getQuestionStats() {
+    return {
+        basic: questionDatabase.basic.length,
+        expert: questionDatabase.expert.length,
+        pro: questionDatabase.pro.length,
+        total: questionDatabase.basic.length + questionDatabase.expert.length + questionDatabase.pro.length
+    };
+}
+
+console.log('Excel Challenge ready! Questions:', getQuestionStats());
+</script>
+</body>
+</html>
